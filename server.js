@@ -4,6 +4,14 @@ const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 const path = require('path');
 
+// Ensure folders exist
+['uploads', 'output'].forEach(folder => {
+  if (!fs.existsSync(folder)) {
+    fs.mkdirSync(folder);
+  }
+});
+
+
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 app.use(express.static('public'));
