@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: 8d-audio-converter-node
+    env: node
+    buildCommand: |
+      apt-get update
+      apt-get install -y ffmpeg
+      npm install
+    startCommand: node server.js
+    plan: free
