@@ -28,19 +28,23 @@ app.post('/convert', upload.single('audio'), (req, res) => {
     const outputPath = path.join('output', outputFilename);
 
     // Rotate audio using stereo pan oscillation
-    const cmd = ffmpeg(inputPath)
-        .audioFilters('apulsator=hz=0.3')  // 8D effect
-        .format('mp3')
-        .on('end', () => {
-            res.download(outputPath, outputFilename, () => {
-                fs.unlinkSync(inputPath);
-                fs.unlinkSync(outputPath);
-            });
-        })
-        .on('error', err => {
-            res.status(500).send('Conversion failed: ' + err.message);
-        })
-        .save(outputPath);
+const cmd = ffmpeg(inputPath)
+  .audioFilters([
+    'apulsator=hz=0.08',
+    'aecho=0.8:0.9:1000|1800:0.3|0.25'
+  ])
+  .format('mp3')
+  .on('end', () => {
+    res.download(outputPath, outputFilename, () => {
+      fs.unlinkSync(inputPath);
+      fs.unlinkSync(outputPath);
+    });
+  })
+  .on('error', err => {
+    res.status(500).send('Conversion failed: ' + err.message);
+  })
+  .save(outputPath);
+
 });
 
 app.listen(3000, () => console.log('Server running on http://localhost:3000'));
