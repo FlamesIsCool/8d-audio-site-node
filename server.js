@@ -1,50 +1,40 @@
-const express = require('express');
-const multer = require('multer');
-const ffmpeg = require('fluent-ffmpeg');
-const fs = require('fs');
-const path = require('path');
-
-// Ensure folders exist
-['uploads', 'output'].forEach(folder => {
-  if (!fs.existsSync(folder)) {
-    fs.mkdirSync(folder);
-  }
-});
-
+const express = require("express");
+const multer = require("multer");
+const ffmpeg = require("fluent-ffmpeg");
+const path = require("path");
+const fs = require("fs");
 
 const app = express();
-const upload = multer({ dest: 'uploads/' });
-app.use(express.static('public'));
-app.set('view engine', 'ejs');
-app.set('views', 'views');
+const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-    res.render('index');
-});
+// File storage
+const upload = multer({ dest: "uploads/" });
 
-app.post('/convert', upload.single('audio'), (req, res) => {
+app.use(express.static("public"));
+app.use("/output", express.static("output"));
+
+app.post("/api/convert", upload.single("audio"), (req, res) => {
+    if (!req.file) return res.status(400).send("No file uploaded.");
+
     const inputPath = req.file.path;
-    const outputFilename = `8d_${Date.now()}.mp3`;
-    const outputPath = path.join('output', outputFilename);
+    const outputName = `8d_${Date.now()}.mp3`;
+    const outputPath = path.join(__dirname, "output", outputName);
 
-    // Rotate audio using stereo pan oscillation
-const cmd = ffmpeg(inputPath)
-  .audioFilters([
-    'apulsator=hz=0.08',
-    'aecho=0.8:0.9:1000|1800:0.3|0.25'
-  ])
-  .format('mp3')
-  .on('end', () => {
-    res.download(outputPath, outputFilename, () => {
-      fs.unlinkSync(inputPath);
-      fs.unlinkSync(outputPath);
-    });
-  })
-  .on('error', err => {
-    res.status(500).send('Conversion failed: ' + err.message);
-  })
-  .save(outputPath);
-
+    const ffmpegCmd = ffmpeg(inputPath)
+        .audioFilters([
+            "apanner=0.08",
+            "aecho=0.8:0.9:1000|1800:0.3|0.25",
+            "areverb=50:100:50:0:100:-0" // reverb config
+        ])
+        .on("end", () => {
+            fs.unlinkSync(inputPath);
+            res.json({ url: `/output/${outputName}` });
+        })
+        .on("error", err => {
+            console.error("Conversion failed:", err.message);
+            res.status(500).send("Conversion failed.");
+        })
+        .save(outputPath);
 });
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

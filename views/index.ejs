@@ -1,16 +1,46 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>8D Audio Converter</title>
-    <link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Soundwave 8D - Audio Converter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      color: #fff;
+    }
+  </style>
 </head>
-<body>
-    <div class="container">
-        <h1>🎧 8D Audio Converter</h1>
-        <form action="/convert" method="post" enctype="multipart/form-data">
-            <input type="file" name="audio" accept="audio/*" required>
-            <button type="submit">Convert to 8D</button>
-        </form>
+<body class="overflow-x-hidden">
+
+  <div class="container mx-auto px-4 py-12">
+    <header class="text-center mb-12">
+      <h1 class="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">Soundwave 8D</h1>
+      <p class="text-lg text-gray-300 max-w-2xl mx-auto mt-2">Convert your audio into immersive 8D experiences.</p>
+    </header>
+
+    <div class="max-w-2xl mx-auto bg-white/5 backdrop-blur rounded-xl p-8 border border-white/10">
+      <form action="/convert" method="POST" enctype="multipart/form-data">
+        <label class="block text-sm mb-2 font-medium text-gray-300">Upload your audio file</label>
+        <input type="file" name="audio" accept="audio/*" required
+          class="block w-full text-sm text-white file:mr-4 file:py-2 file:px-4 file:rounded-full
+                 file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white
+                 hover:file:bg-indigo-500 mb-6"/>
+
+        <button type="submit"
+          class="w-full bg-indigo-600 hover:bg-indigo-500 transition-all font-medium py-3 px-6 rounded-full text-lg">
+          Convert to 8D Audio
+        </button>
+      </form>
     </div>
+
+    <footer class="mt-16 py-8 border-t border-indigo-900/30 text-center text-gray-400 text-sm">
+      <p>Soundwave 8D — Global 8D Audio Converter</p>
+    </footer>
+  </div>
+
 </body>
 </html>
