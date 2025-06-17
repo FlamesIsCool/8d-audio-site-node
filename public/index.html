@@ -302,25 +302,41 @@
             fileInput.value = '';
         });
         
-        convertBtn.addEventListener('click', () => {
-            // Show a success message (in a real app, this would actually convert the file)
+        convertBtn.addEventListener('click', async () => {
+            if (!fileInput.files.length) {
+                alert('Please select an audio file.');
+                return;
+            }
+
+            convertBtn.disabled = true;
             const originalText = convertBtn.innerHTML;
             convertBtn.innerHTML = `
-                <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                <svg class="w-6 h-6 mr-2 animate-spin" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 018-8h-4l3-3 3 3h-4a8 8 0 11-8-8z"></path>
                 </svg>
-                Conversion Complete!
+                Converting...
             `;
-            convertBtn.classList.remove('pulse');
-            
-            setTimeout(() => {
-                convertBtn.innerHTML = `
-                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                    </svg>
-                    Download 8D Audio
-                `;
-            }, 2000);
+
+            const formData = new FormData();
+            formData.append('audio', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/api/convert', { method: 'POST', body: formData });
+                if (!response.ok) throw new Error('failed');
+                const data = await response.json();
+
+                convertBtn.innerHTML = 'Download 8D Audio';
+                convertBtn.classList.remove('pulse');
+                convertBtn.addEventListener('click', () => {
+                    window.location = data.url;
+                }, { once: true });
+            } catch (err) {
+                alert('Conversion failed.');
+                convertBtn.innerHTML = originalText;
+            } finally {
+                convertBtn.disabled = false;
+            }
         });
         
         scrollToUpload.addEventListener('click', () => {
