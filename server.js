@@ -28,9 +28,8 @@ app.post("/api/convert", upload.single("audio"), (req, res) => {
 
     const ffmpegCmd = ffmpeg(inputPath)
         .audioFilters([
-            "apanner=0.08",
-            "aecho=0.8:0.9:1000|1800:0.3|0.25",
-            "areverb=50:100:50:0:100:-0" // reverb config
+            "apulsator=hz=0.08",
+            "aecho=0.8:0.9:1000|1800:0.3|0.25"
         ])
         .on("end", () => {
             fs.unlinkSync(inputPath);
