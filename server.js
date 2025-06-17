@@ -7,18 +7,24 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Ensure upload and output directories exist
+const uploadDir = path.join(__dirname, "uploads");
+const outputDir = path.join(__dirname, "output");
+fs.mkdirSync(uploadDir, { recursive: true });
+fs.mkdirSync(outputDir, { recursive: true });
+
 // File storage
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ dest: uploadDir });
 
 app.use(express.static("public"));
-app.use("/output", express.static("output"));
+app.use("/output", express.static(outputDir));
 
 app.post("/api/convert", upload.single("audio"), (req, res) => {
     if (!req.file) return res.status(400).send("No file uploaded.");
 
     const inputPath = req.file.path;
     const outputName = `8d_${Date.now()}.mp3`;
-    const outputPath = path.join(__dirname, "output", outputName);
+    const outputPath = path.join(outputDir, outputName);
 
     const ffmpegCmd = ffmpeg(inputPath)
         .audioFilters([
