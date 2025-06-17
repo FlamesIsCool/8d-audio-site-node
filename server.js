@@ -19,6 +19,17 @@ const upload = multer({ dest: uploadDir });
 app.use(express.static("public"));
 app.use("/output", express.static(outputDir));
 
+// Force download for generated files
+app.get("/download/:name", (req, res) => {
+    const file = path.join(outputDir, req.params.name);
+    res.download(file, err => {
+        if (err) {
+            console.error("Download failed:", err.message);
+            res.status(404).send("File not found.");
+        }
+    });
+});
+
 app.post("/api/convert", upload.single("audio"), (req, res) => {
     if (!req.file) return res.status(400).send("No file uploaded.");
 
@@ -33,7 +44,7 @@ app.post("/api/convert", upload.single("audio"), (req, res) => {
         ])
         .on("end", () => {
             fs.unlinkSync(inputPath);
-            res.json({ url: `/output/${outputName}` });
+            res.json({ url: `/download/${outputName}` });
         })
         .on("error", err => {
             console.error("Conversion failed:", err.message);

@@ -329,7 +329,12 @@
                 convertBtn.innerHTML = 'Download 8D Audio';
                 convertBtn.classList.remove('pulse');
                 convertBtn.addEventListener('click', () => {
-                    window.location = data.url;
+                    const a = document.createElement('a');
+                    a.href = data.url;
+                    a.download = '';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
                 }, { once: true });
             } catch (err) {
                 alert('Conversion failed.');
